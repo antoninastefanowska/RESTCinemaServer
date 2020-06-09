@@ -10,6 +10,8 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Indexes;
 
 import exceptions.InvalidIdException;
 import exceptions.NoSuchUserException;
@@ -193,7 +195,18 @@ public class Database {
 		if (!checkTakenSeats(reservation))
 			throw new SeatAlreadyTakenException();
 		
-		reservation.generateIdentifier();
+		Document lastIdDocument = users
+				.aggregate(Arrays.asList(
+					match(eq("authorization.username", username)),
+					unwind("$reservations"),
+					group(null, Accumulators.max("lastId", "$reservations.identifier")),
+					project(fields(
+						include("lastId"),
+						excludeId()))))
+				.first();
+		int newId = lastIdDocument != null ? lastIdDocument.getInteger("lastId") + 1 : 0;
+		
+		reservation.setId(newId);
 		reservation.generateCode();
 		Document reservationDocument = Converter.toDocument(reservation);	
 		users.updateOne(eq("authorization.username", username), push("reservations", reservationDocument));
@@ -237,6 +250,13 @@ public class Database {
 	private void clearDatabase() {
 		mongoDB.drop();
 		System.out.println("Usuniêto bazê danych.");
+	}
+	
+	public void createIndexes() {
+		films.createIndex(Indexes.ascending("identifier"));
+		showings.createIndex(Indexes.ascending("identifier"));
+		users.createIndex(Indexes.text("authorization.username"));
+		blockedIpAddresses.createIndex(Indexes.text("ip"));
 	}
 	
 	public void processCommand(String command) {

@@ -22,6 +22,7 @@ public class IPAddressCheckFilter implements Filter {
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest)servletRequest;
+		HttpServletResponse httpResponse = (HttpServletResponse)servletResponse;
 		String uri = httpRequest.getRequestURI();
 		if (uri.equals("/cinema/application.wadl") || uri.equals("/cinema/application.wadl/xsd0.xsd")) {
 			chain.doFilter(servletRequest, servletResponse);
@@ -30,7 +31,6 @@ public class IPAddressCheckFilter implements Filter {
 		String ipAddress = httpRequest.getHeader("IP-Address");
 		if (ipAddress == null || ipAddress.isEmpty()) {
 			String message = "Brak adresu IP.";
-			HttpServletResponse httpResponse = (HttpServletResponse)servletResponse;
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, message);
 			return;
 		}
@@ -38,7 +38,6 @@ public class IPAddressCheckFilter implements Filter {
 			System.out.println("IP: " + ipAddress);
 			if (Database.getInstance().isIpAddressBlocked(ipAddress)) {
 				String message = "Twój adres IP zosta³ zablokowany.";
-				HttpServletResponse httpResponse = (HttpServletResponse)servletResponse;
 				httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, message);
 				return;
 			}

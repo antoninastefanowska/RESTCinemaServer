@@ -9,7 +9,9 @@ import model.Showing;
 
 public class DataInitializer {
 	
-	public static void populateDatabase(Database db) {		
+	public static void populateDatabase(Database db) {
+		db.createIndexes();
+		
 		Person director = new Person("Imaishi", "Hiroyuki");
 		Film film = new Film("Promare", director, "A terrorist group calling themselves Mad Burnish has been causing havoc all over the nation. After an encounter with Mad Burnish leader Lio Fotia, Galo sets out on his fated journey to find the truth about these mutants, ultimately leading him to question everything he previously held to be true.");
 		film.setCoverFilename("promare.jpg");

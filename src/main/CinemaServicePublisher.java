@@ -13,7 +13,7 @@ import model.Database;
 import service.IPAddressCheckFilter;
 
 public class CinemaServicePublisher {
-	private static final String URL = "http://192.168.0.105:8080/cinema/";
+	private static final String URL = "http://192.168.0.107:8080/cinema/";
 	
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
